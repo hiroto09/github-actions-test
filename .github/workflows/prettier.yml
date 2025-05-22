@@ -1,25 +1,30 @@
-name: Pretter
+name: Prettier
 
 on:
   push:
     branches:
-      - master
+      - main  # or master, if that's your default branch
 
 env:
-  FILE_PATTERN: "{src,__tests__}/**/*.{ts,tsx,js,jsx}"
+  FILE_PATTERN: '{src,__tests__}/**/*.{ts,tsx,js,jsx}'
 
 jobs:
-  lint:
+  format:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+
+      - uses: actions/setup-node@v3
         with:
-          node-version: 12.x
+          node-version: 18  # 推奨：12 は古いです
+
+      - name: Install dependencies
+        run: npm install
+
       - name: Run Prettier
-        run: |
-          npm install
-          npm prettier --write ${FILE_PATTERN}
-      - uses: stefanzweifel/git-auto-commit-action@v3.0.0
+        run: npx prettier --write "${FILE_PATTERN}"
+
+      - name: Commit Prettier changes
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: Apply Prettier Change
+          commit_message: 'chore: Apply Prettier formatting'
