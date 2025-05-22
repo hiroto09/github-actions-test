@@ -9,22 +9,18 @@ env:
   FILE_PATTERN: '{src,__tests__}/**/*.{ts,tsx,js,jsx}'
 
 jobs:
-  format:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v1
         with:
-          node-version: 18  # 推奨：12 は古いです
-
-      - name: Install dependencies
-        run: npm install
-
+          node-version: 12.x
       - name: Run Prettier
-        run: npx prettier --write "${FILE_PATTERN}"
-
-      - name: Commit Prettier changes
-        uses: stefanzweifel/git-auto-commit-action@v5
+        run: |
+          npm install
+          npx prettier --write "${FILE_PATTERN}"
+      - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: 'chore: Apply Prettier formatting'
+          token: ${{ secrets.GITHUB_TOKEN }}
