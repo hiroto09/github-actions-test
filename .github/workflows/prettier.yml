@@ -1,26 +1,50 @@
-name: Prettier
+name: ESLint & Prettier
 
 on:
   push:
     branches:
-      - main  # or master, if that's your default branch
+      - main
+  pull_request:
+    branches:
+      - main
 
-env:
-  FILE_PATTERN: '{src,__tests__}/**/*.{ts,tsx,js,jsx}'
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   lint:
+    name: CI
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: 12.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: setup environments
+        run: echo "${{ secrets.ENVIRONMENTS }}" > .env.test.local
+
+      - name: Run ESLint
+        run: npm run lint:fix
       - name: Run Prettier
-        run: |
-          npm install
-          npx prettier --write "${FILE_PATTERN}"
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: 'chore: Apply Prettier formatting'
-          token: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run format:fix
+
+
+
+
+
+
+
+
+
